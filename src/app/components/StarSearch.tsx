@@ -7,7 +7,7 @@ import { Button } from "./ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { ScrollArea } from "./ui/scroll-area"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
-import { Search, TrendingUp, AlertCircle, ChevronDown } from 'lucide-react'
+import { Search, TrendingUp, AlertCircle, ChevronDown, Film, Monitor } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,36 +30,41 @@ interface Person {
   }>;
 }
 
-function formatSearchResults(data: any): string {
+function formatSearchResults(data: any): JSX.Element {
   const results = data.results as Person[];
-  let formattedResult = '';
 
-  results.forEach((person, index) => {
-    formattedResult += `Person ${index + 1}:\n`;
-    formattedResult += `Name: ${person.name}\n`;
-    formattedResult += `Known for: ${person.known_for_department}\n`;
-    
-    if (person.known_for && person.known_for.length > 0) {
-      formattedResult += 'Famous works:\n';
-      person.known_for.forEach((work, workIndex) => {
-        formattedResult += `  ${workIndex + 1}. ${work.title} (${work.media_type})`;
-        if (work.release_date) {
-          formattedResult += ` - Released: ${work.release_date}`;
-        }
-        formattedResult += '\n';
-      });
-    } else {
-      formattedResult += 'No famous works listed.\n';
-    }
-    
-    formattedResult += '\n';
-  });
-
-  return formattedResult;
+  return (
+    <div className="space-y-6">
+      {results.map((person, index) => (
+        <div key={index} className="bg-secondary p-4 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">{person.name}</h3>
+          <p className="text-sm text-muted-foreground mb-2">Known for: {person.known_for_department}</p>
+          {person.known_for && person.known_for.length > 0 ? (
+            <div>
+              <h4 className="text-sm font-medium mb-1">Famous works:</h4>
+              <ul className="list-disc list-inside space-y-1">
+                {person.known_for.map((work, workIndex) => (
+                  <li key={workIndex} className="text-sm">
+                    {work.media_type === 'movie' ? 
+                      <Film className="inline-block w-4 h-4 mr-1" /> : 
+                      <Monitor className="inline-block w-4 h-4 mr-1" />}
+                    {work.title} ({work.media_type})
+                    {work.release_date && ` - Released: ${work.release_date}`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No famous works listed.</p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function StarSearch() {
-  const [searchResult, setSearchResult] = useState<string | null>(null)
+  const [searchResult, setSearchResult] = useState<JSX.Element | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { register, handleSubmit, watch } = useForm<FormData>()
@@ -122,13 +127,16 @@ export function StarSearch() {
 
   return (
     <div className="min-h-screen bg-background p-4">
-        <div className='max-w-2xl mx-auto flex justify-end mb-4'>
+      <div className='max-w-2xl mx-auto flex justify-end mb-4'>
         <ModeToggle /> 
-        </div>
+      </div>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-3xl">Search for a Star</CardTitle>
-          <CardDescription>Enter a name to search for information about a star or celebrity.</CardDescription>
+          <CardDescription>
+            Enter a name to search for information about a star or celebrity, 
+            or check out who's on the top famous list.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -182,10 +190,8 @@ export function StarSearch() {
             <CardTitle>Search Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-              <pre className="whitespace-pre-wrap text-sm">
-                {searchResult}
-              </pre>
+            <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+              {searchResult}
             </ScrollArea>
           </CardContent>
         </Card>
