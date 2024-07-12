@@ -135,7 +135,7 @@ export function StarSearch() {
           <CardTitle className="text-3xl">Search for a Star</CardTitle>
           <CardDescription>
             Enter a name to search for information about a star or celebrity, 
-            or check out who's on the top famous list.
+            or check out whos on the top famous list.
           </CardDescription>
         </CardHeader>
         <CardContent>
